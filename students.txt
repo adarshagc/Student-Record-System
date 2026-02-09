@@ -1,0 +1,3 @@
+001,Adarsha,21,Male,CSE,A+,6362262443,adarshagc@gmail.com
+002,Abhishek,19,Male,CSE,A+,8345676543,abhi@gmail.com
+003,Ramesh,27,Male,ME,A,7624989437,ramesh@gmail.com
