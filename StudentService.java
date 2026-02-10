@@ -65,6 +65,7 @@ public class StudentService {
         String phone = sc.nextLine();
 
         // Email Input
+        System.out.println("Validating email format...");
         System.out.print("\nEnter Student Email: ");
         String email = sc.nextLine();
 
