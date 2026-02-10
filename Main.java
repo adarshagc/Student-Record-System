@@ -11,6 +11,8 @@ public class Main {
         //Load file data at the start of the program
         student.loadStudentsFromFile();
 
+        System.out.println("Welcome to the Student Record System!");
+
         // Main menu loop
         while(true) {
             System.out.println("\n1.Add Student");
