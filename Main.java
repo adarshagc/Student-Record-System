@@ -18,7 +18,7 @@ public class Main {
             System.out.println("\n3.Search Student");
             System.out.println("\n4.Delete Student");
             System.out.println("\n5.Update Student");
-            System.out.println("\n6.Sort Students");
+            System.out.println("\n6.Sortt Students");
                 
             System.out.println("\n7.Exit");
 
