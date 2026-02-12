@@ -1,7 +1,5 @@
 import java.util.*;
-import java.io.FileWriter;
-import java.io.File;
-import java.io.IOException;
+import java.sql.*;
 
 public class StudentService {
 
@@ -10,290 +8,302 @@ public class StudentService {
     //============ Add Student ============//
     void addStudent(Scanner sc) {
 
-        //ID Input  
-        System.out.print("\nEnter Student ID: ");
-        String id = sc.nextLine();
+        try {
+            //Get DB connection
+            Connection con = DBConnection.getConnection();
 
-        // Check for duplicate ID
-        for(Student student : students) {
-            if(student.id.equals(id)) {
-                System.out.println("Student ID already exists. Please try again.");
-                return;
+            //ID Input  
+            System.out.print("\nEnter Student ID: ");
+            String id = sc.nextLine();
+
+            // Check for duplicate ID
+            for(Student student : students) {
+                if(student.id.equals(id)) {
+                    System.out.println("Student ID already exists. Please try again.");
+                    return;
+                }
             }
-        }
 
-        //Name Input
-        System.out.print("\nEnter Student Name: ");
-        String name = sc.nextLine();
+            //Name Input
+            System.out.print("\nEnter Student Name: ");
+            String name = sc.nextLine();
 
-        //Age Input
-        System.out.print("\nEnter Student Age: ");
-        int age = sc.nextInt();
-        sc.nextLine(); // Consume newline
+            //Age Input
+            System.out.print("\nEnter Student Age: ");
+            int age = sc.nextInt();
+            sc.nextLine(); // Consume newline
 
-        //Gender Selection
-        System.out.println("1.Male");
-        System.out.println("2.Female");
-        System.out.println("3.Others");
-        System.out.print("\nSelect Gender: ");
+            //Gender Selection
+            System.out.println("1.Male");
+            System.out.println("2.Female");
+            System.out.println("3.Others");
+            System.out.print("\nSelect Gender: ");
 
-        int gChoice = sc.nextInt();
-        sc.nextLine(); 
+            int gChoice = sc.nextInt();
+            sc.nextLine(); 
 
-        String gender;
+            String gender;
 
-        switch(gChoice) {
-            case 1 -> gender = "Male";
-            case 2 -> gender = "Female";
-            case 3 -> gender = "Others";
-            default -> {
-                System.out.println("Invalid choice. Defaulting to 'Others'.");
-                gender = "Others";
+            switch(gChoice) {
+                case 1 -> gender = "Male";
+                case 2 -> gender = "Female";
+                case 3 -> gender = "Others";
+                default -> {
+                    System.out.println("Invalid choice. Defaulting to 'Others'.");
+                    gender = "Others";
+                }
             }
+
+            //Course Input
+            System.out.print("\nEnter Student Course: ");
+            String course = sc.nextLine();
+
+            //Grade Input
+            System.out.print("\nEnter Student Grade: ");
+            String grade = sc.nextLine();
+
+            // Phone Input
+            System.out.print("\nEnter Student Phone: ");
+            String phone = sc.nextLine();
+
+            // Email Input
+            System.out.println("Validating email format...");
+            System.out.print("\nEnter Student Email: ");
+            String email = sc.nextLine();
+
+            // SQL Inser Query
+            String query = "INSERT INTO students VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+            // Prepare the statement and set parameters
+            PreparedStatement ps = con.prepareStatement(query);
+
+            ps.setString(1, id);
+            ps.setString(2, name);
+            ps.setInt(3, age);
+            ps.setString(4, gender);
+            ps.setString(5, course);
+            ps.setString(6, grade);
+            ps.setString(7, phone);
+            ps.setString(8, email);
+
+            // Execute the insert query
+            int rowsAffected = ps.executeUpdate();
+            if(rowsAffected > 0) {
+                System.out.println("Student added to database successfully!");
+            } else {
+                System.out.println("Failed to add student to database.");
+            }
+            con.close();
         }
-
-        //Course Input
-        System.out.print("\nEnter Student Course: ");
-        String course = sc.nextLine();
-
-        //Grade Input
-        System.out.print("\nEnter Student Grade: ");
-        String grade = sc.nextLine();
-
-        // Phone Input
-        System.out.print("\nEnter Student Phone: ");
-        String phone = sc.nextLine();
-
-        // Email Input
-        System.out.println("Validating email format...");
-        System.out.print("\nEnter Student Email: ");
-        String email = sc.nextLine();
-
-        // Create and add the student to the list   
-        Student s = new Student(id, name, age, gender, course, grade, phone, email);
-        students.add(s);
-
-        // Save the student information to a file
-        saveStudentsToFile(); // Save all students to the file
-
-        System.out.println("Student added successfully!");
+        catch(Exception e) {
+            System.out.println("Error adding student: " + e.getMessage());
+        }
     }
 
     //============ Display Student ============//
     void displayStudent() {
-        // Check if there are students to display
-        if(students.isEmpty()) {
-            System.out.println("No students to display.");
-            return;
-        } else {
-            // Display student information
-            System.out.println("\nStudent Information:");
-            System.out.println("-----------------------");
-            for (Student student : students) {
-                student.display();
+
+        try {
+
+            // Get DB connection
+            Connection con = DBConnection.getConnection();
+
+            // SQL Select Query
+            String query = "SELECT * FROM students";
+
+            // Create Statement
+            Statement stmt = con.createStatement();
+
+            // Execute the query and get ResultSet
+            ResultSet rs = stmt.executeQuery(query);
+
+            System.out.println("\n=====Student RECORDS =====");
+
+            // Fetch each row
+            while(rs.next()) {
+                System.out.println("ID : " + rs.getString("id"));
+                System.out.println("Name : " + rs.getString("name"));
+                System.out.println("Age : " + rs.getInt("age"));
+                System.out.println("Gender : " + rs.getString("gender"));
+                System.out.println("Course : " + rs.getString("course"));
+                System.out.println("Grade : " + rs.getString("grade"));
+                System.out.println("Phone : " + rs.getString("phone"));
+                System.out.println("Email : " + rs.getString("email"));
+
+                System.out.println("-----------------------");
             }
+            con.close();
+        }
+        catch(Exception e) {
+            System.out.println("Error displaying students: " + e.getMessage());
         }
     }
 
     //============ Search Student ============//
     void searchStudent(Scanner sc) {
 
-        System.out.println("\nEnter Student ID to search: ");
-        String id = sc.nextLine();
-        boolean found = false;
+        try {
+            // Get DB connection
+            Connection con = DBConnection.getConnection();
 
-        // Search for the student by ID and display their information if found
-        for(Student student : students) {
-            if(student.id.equals(id)) {
-                student.display();
-                found = true;
-                break;
+            //Input ID 
+            System.out.println("\n Enter Student ID to Search: ");
+
+            //SQL Query
+            String query = "SELECT * FROM students WHERE id = ?";
+
+            //Prepare Statement
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setString(1, sc.nextLine());
+
+            //Execute Query
+            ResultSet rs = ps.executeQuery();
+
+            if(rs.next()) {
+                System.out.println("\n===== STUDENT FOUND =====");
+                System.out.println("ID : " + rs.getString("id"));
+                System.out.println("Name : " + rs.getString("name"));
+                System.out.println("Age : " + rs.getInt("age"));
+                System.out.println("Gender : " + rs.getString("gender"));
+                System.out.println("Course : " + rs.getString("course"));
+                System.out.println("Grade : " + rs.getString("grade"));
+                System.out.println("Phone : " + rs.getString("phone"));
+                System.out.println("Email : " + rs.getString("email"));
+            } else {
+                System.out.println("Student not found.");
             }
+            con.close();
         }
-        if(!found) {
-            System.out.println("Student not found.");
+        catch(Exception e) {
+            System.out.println("Error searching student: " + e.getMessage());
         }
     }
 
     //============ Delete Student ============//
     void DeleteStudent(Scanner sc) {
-        
-        System.out.println("Enter the Student ID to delete: ");
-        String id = sc.nextLine();
-        boolean found = false;
-        Iterator<Student> iterator = students.iterator();
 
-        // Search for the student by ID and remove them from the list if found
-        while(iterator.hasNext()) {
-            Student student = iterator.next();
-            if(student.id.equals(id)) {
-                iterator.remove();
-                saveStudentsToFile(); //rewrite file after deletion
+        try {
+            // Get DB connection
+            Connection con = DBConnection.getConnection();
+
+            //Input ID
+            System.out.println("\nEnter Student ID to Delete: ");
+
+            //SQL Query
+            String query = "DELETE FROM students WHERE id = ?";
+
+            //Prepare Statement
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setString(1, sc.nextLine());
+            
+            //Execute Query
+            int rowsAffected = ps.executeUpdate();
+
+            //Check if deletion was successful
+            if(rowsAffected > 0) {
                 System.out.println("Student deleted successfully!");
-                found = true;
-                break;
+            } else {
+                System.out.println("Student not found. Deletion failed.");
             }
+            con.close();
         }
-        if(!found) {
-            System.out.println("Student not found.");
+        catch(Exception e) {
+            System.out.println("Error deleting student: " + e.getMessage());
         }
     }
 
     //============ Update Student ============//
     void UpdateStudent(Scanner sc) {
 
-        System.out.println("Enter the student ID to update: ");
-        String id = sc.nextLine();
-        boolean found = false;
-
-        // Search for the student by ID and update their information if found
-        for(Student student : students) {
-
-            if(student.id.equals(id)) {
-
-                // Update student name
-                System.out.println("Enter new name for the student: ");
-                String newName = sc.nextLine();
-                student.name = newName;
-
-                // Update student age
-                System.out.println("Enter new age for the student: ");
-                int newAge = sc.nextInt();
-                sc.nextLine(); // Consume newline
-                student.age = newAge;
-                
-                //Update student gender
-                System.out.println("Enter new gender for the student: ");
-                String newGender = sc.nextLine();
-                student.gender = newGender;
-
-                //Update student course
-                System.out.println("Enter new course for the student: ");
-                String newCourse = sc.nextLine();
-                student.course = newCourse;
-
-                //Update student grade
-                System.out.println("Enter new grade for the student: ");
-                String newGrade = sc.nextLine();
-                student.grade = newGrade;
-
-                //Update student phone
-                System.out.println("Enter new phone for the student: ");
-                String newPhone = sc.nextLine();
-                student.phone = newPhone;
-
-                //Update student email  
-                System.out.println("Enter new email for the student: ");
-                String newEmail = sc.nextLine();
-                student.email = newEmail;
-
-                saveStudentsToFile(); //rewrite file after update
-
-                System.out.println("Student information updated successfully!");
-                found = true;
-                break;
-            }
-        }
-        if(!found) {
-            System.out.println("Student not found.");
-        }
-    }
-
-    //============ Sort Students ============//
-    void SortStudents() {
-
-        if(students.isEmpty()) {
-            System.out.println("No students to sort.");
-            return;
-        } else {
-
-            // Sort students by ID using a comparator
-            students.sort(Comparator.comparing(student -> student.id));
-            System.out.println("Students sorted by ID successfully!");
-        }
-    }
-
-    //============ Save One (APPEND) ============//
-    void saveStudentsToFile(Student student) {
-
         try {
-            FileWriter fw = new FileWriter("students.txt", true);
+            //Get DB Connection
+            Connection con = DBConnection.getConnection();
 
-            fw.write(
-                student.id + "," +
-                student.name + "," +
-                student.age + "," +
-                student.gender + "," +
-                student.course + "," +
-                student.grade + "," +
-                student.phone + "," +
-                student.email + "\n"
-            );
-            fw.close();
+            //Input ID
+            System.out.println("\n Enter Student ID to Update: ");
+            String id = sc.nextLine();
 
-        } catch (Exception e) {
-            System.out.println("Error saving to file: " + e.getMessage());
-        }
-    }
+            // Check if student exists
+            String checkquery = "SELECT * FROM students WHERE id = ?";
 
-    //============ Save All (OVERWRITE) ============//
-    void saveStudentsToFile() {
-        try {
-            FileWriter fw = new FileWriter("students.txt");
+            // Prepare Statement
+            PreparedStatement checkps = con.prepareStatement(checkquery);
+            checkps.setString(1, id);
 
-            for(Student student : students) {
-                fw.write(
-                    student.id + "," +
-                    student.name + "," +
-                    student.age + "," +
-                    student.gender + "," +
-                    student.course + "," +
-                    student.grade + "," +
-                    student.phone + "," +
-                    student.email + "\n"
-                );
-            }
-            fw.close();
-            System.out.println("Students saved to file successfully!");
+            // Execute Query
+            ResultSet rs = checkps.executeQuery();
 
-        } catch (Exception e) {
-            System.out.println("Error saving to file: " + e.getMessage());
-        }
-    }
-
-    //============ Load Students from File ============//   
-    void loadStudentsFromFile() {
-        // This method can be implemented to read student information from the file and populate the students list when the application starts.
-        try {
-            File file = new File("students.txt");
-
-            if(!file.exists()) {
-                System.out.println("No existing student records found.");
+            if(!rs.next()) {
+                System.out.println("Student not found.");
                 return;
             }
-            Scanner fileScanner = new Scanner(file);
 
-            while(fileScanner.hasNextLine()) {
-                String line = fileScanner.nextLine();
-                String[] data = line.split(",");
-                Student student = new Student(
-                    data[0], // id
-                    data[1], // name
-                    Integer.parseInt(data[2]), // age
-                    data[3], // gender
-                    data[4], // course
-                    data[5], // grade
-                    data[6], // phone
-                    data[7]  // email
-                );
+            // Input new details
+            System.out.print("\nEnter New Name: ");
+            String name = sc.nextLine();
 
-                students.add(student);
+            System.out.print("\nEnter New Age: ");
+            int age = sc.nextInt();
+            sc.nextLine(); // Consume newline
+
+            System.out.println("1.Male");
+            System.out.println("2.Female");
+            System.out.println("3.Others");
+            System.out.print("\nSelect New Gender: ");
+            int gChoice = sc.nextInt();
+            sc.nextLine();
+            
+            String gender;  
+            switch(gChoice) {
+                case 1 -> gender = "Male";
+                case 2 -> gender = "Female";
+                case 3 -> gender = "Others";
+                default -> {
+                    System.out.println("Invalid choice. Defaulting to 'Others'.");
+                    gender = "Others";
+                }
             }
-            fileScanner.close();
-            System.out.println("Students loaded from file successfully!");
+
+            System.out.print("\nEnter New Course: ");
+            String course = sc.nextLine();
+
+            System.out.print("\nEnter New Grade: ");
+            String grade = sc.nextLine();
+
+            System.out.print("\nEnter New Phone: ");
+            String phone = sc.nextLine();
+
+            System.out.print("\nEnter New Email: ");
+            String email = sc.nextLine();
+
+            // SQL Update Query
+            String updateQuery = "UPDATE students SET " + "name = ?, age = ?, gender = ?," + " course = ?, grade = ?, phone = ?, email = ? WHERE id = ?";
+
+            // Prepare Statement
+            PreparedStatement ps = con.prepareStatement(updateQuery);
+
+            ps.setString(1, name);
+            ps.setInt(2, age);
+            ps.setString(3, gender);
+            ps.setString(4, course);
+            ps.setString(5, grade);
+            ps.setString(6, phone);
+            ps.setString(7, email);
+            ps.setString(8, id);
+
+            // Execute Update
+            int rowsAffected = ps.executeUpdate();
+
+            // Check if update was successful
+            if(rowsAffected > 0) {
+                System.out.println("Student updated successfully!");
+            } else {
+                System.out.println("Student not found. Update failed.");
+            }
+
         }
-        catch (Exception e) {
-            System.out.println("Error loading from file: " + e.getMessage());
+        catch(Exception e) {
+            System.out.println("Error updating student: " + e.getMessage());
         }
     }
 }
