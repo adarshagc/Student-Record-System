@@ -5,6 +5,21 @@ public class StudentService {
 
     static ArrayList<Student> students = new ArrayList<>();
 
+    //====== Grde Calculation Method ======//
+    String calculateGrade(double marks) {
+        if(marks >= 90) {
+            return "A";
+        } else if(marks >= 80) {
+            return "B";
+        } else if(marks >= 70) {
+            return "C";
+        } else if(marks >= 60) {
+            return "D";
+        } else {
+            return "F";
+        }
+    }
+
     //============ Add Student ============//
     void addStudent(Scanner sc) {
 
@@ -68,9 +83,9 @@ public class StudentService {
                 return;
             }
 
-            //Grade Input
-            System.out.print("\nEnter Student Grade: ");
-            String grade = sc.nextLine();
+            // Calculate Grade
+            String grade = calculateGrade(marks);
+            System.out.println("Calculated Grade: " + grade);
 
             // Phone Input
             System.out.print("\nEnter Student Phone: ");
@@ -82,7 +97,7 @@ public class StudentService {
             String email = sc.nextLine();
 
             // SQL Inser Query
-            String query = "INSERT INTO students VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            String query = "INSERT INTO students VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             // Prepare the statement and set parameters
             PreparedStatement ps = con.prepareStatement(query);
@@ -92,9 +107,10 @@ public class StudentService {
             ps.setInt(3, age);
             ps.setString(4, gender);
             ps.setString(5, course);
-            ps.setString(6, grade);
-            ps.setString(7, phone);
-            ps.setString(8, email);
+            ps.setDouble(6, marks);
+            ps.setString(7, grade);
+            ps.setString(8, phone);
+            ps.setString(9, email);
 
             // Execute the insert query
             int rowsAffected = ps.executeUpdate();
@@ -277,8 +293,18 @@ public class StudentService {
             System.out.print("\nEnter New Course: ");
             String course = sc.nextLine();
 
-            System.out.print("\nEnter New Grade: ");
-            String grade = sc.nextLine();
+            System.out.print("\nEnter New Marks: ");
+            double marks = sc.nextDouble();
+            sc.nextLine(); // Consume newline
+
+            if(marks < 0 || marks > 100) {
+                System.out.println("Invalid marks. Please enter a value between 0 and 100.");
+                return;
+            }
+
+            String grade = calculateGrade(marks);
+
+            System.out.println("Calculated Grade: " + grade);
 
             System.out.print("\nEnter New Phone: ");
             String phone = sc.nextLine();
@@ -287,7 +313,7 @@ public class StudentService {
             String email = sc.nextLine();
 
             // SQL Update Query
-            String updateQuery = "UPDATE students SET " + "name = ?, age = ?, gender = ?," + " course = ?, grade = ?, phone = ?, email = ? WHERE id = ?";
+            String updateQuery = "UPDATE students SET " + "name = ?, age = ?, gender = ?," + " course = ?, marks = ?, grade = ?, phone = ?, email = ? WHERE id = ?";
 
             // Prepare Statement
             PreparedStatement ps = con.prepareStatement(updateQuery);
@@ -296,10 +322,11 @@ public class StudentService {
             ps.setInt(2, age);
             ps.setString(3, gender);
             ps.setString(4, course);
-            ps.setString(5, grade);
-            ps.setString(6, phone);
-            ps.setString(7, email);
-            ps.setString(8, id);
+            ps.setDouble(5, marks);
+            ps.setString(6, grade);
+            ps.setString(7, phone);
+            ps.setString(8, email);
+            ps.setString(9, id);
 
             // Execute Update
             int rowsAffected = ps.executeUpdate();
