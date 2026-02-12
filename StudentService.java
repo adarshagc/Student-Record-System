@@ -58,6 +58,16 @@ public class StudentService {
             System.out.print("\nEnter Student Course: ");
             String course = sc.nextLine();
 
+            //Marks Input
+            System.out.print("\nEnter Student Marks: ");
+            double marks = sc.nextDouble();
+            sc.nextLine(); // Consume newline
+
+            if(marks < 0 || marks > 100) {
+                System.out.println("Invalid marks. Please enter a value between 0 and 100.");
+                return;
+            }
+
             //Grade Input
             System.out.print("\nEnter Student Grade: ");
             String grade = sc.nextLine();
