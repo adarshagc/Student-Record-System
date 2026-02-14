@@ -1,24 +1,19 @@
-class Student {
-    String id;
-    String name;
-    int age;
-    String gender;
+class Student extends Person {
     String course;
     double marks;
     String grade;
-    String phone;
-    String email;
 
-    public Student(String id, String name, int age, String gender, double marks, String course, String grade, String phone, String email) {
-        this.id = id;
-        this.name = name;
-        this.age = age;
-        this.gender = gender;
+    public Student(String id, String name, int age, String gender, String phone, String email, String course, double marks, String grade) {
+        super(id, name, age, gender, phone, email);
         this.marks = marks;
         this.course = course;
         this.grade = grade;
-        this.phone = phone;
-        this.email = email;
+    }
+    public double getMarks() {
+        return marks;
+    }
+    public String getGrade() {
+        return grade;
     }
 
     void display() {

@@ -89,7 +89,7 @@ public class StudentService {
 
             // Phone Input
             System.out.print("\nEnter Student Phone: ");
-            String phone = sc.nextLine();
+            String phone = sc.nextLine();+
 
             // Email Input
             System.out.println("Validating email format...");
